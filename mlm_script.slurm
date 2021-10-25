@@ -12,7 +12,7 @@ singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:ro /scratch/work/p
 echo "Running - Run BERT MLM Training on IMDB datasets"
 source /ext3/env.sh
 conda activate
-python run_mlm.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/UDA_Experiments/pretrain_output/checkpoint-1500 --dataset_name imdb --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/UDA_Experiments/pretrain_output/'
+python run_mlm.py --model_name_or_path bert-base-uncased --dataset_name imdb --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/UDA_Experiments/pretrain_output/ --cache_dir /scratch/yk2516/cache'
 
 
 
