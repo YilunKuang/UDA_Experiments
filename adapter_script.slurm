@@ -17,3 +17,4 @@ python run_glue_alt.py --model_name_or_path bert-base-uncased --task_name $TASK_
 
 
 
+python run_mlm.py --model_name_or_path bert-base-uncased --dataset_name imdb --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-final --cache_dir /scratch/yk2516/cache
