@@ -9,11 +9,11 @@
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_train_%j.out
 
 singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:ro /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash -c '
-echo "Running - Run BERT-Adapter Training on SST-2 datasets"
+echo "Running - Run BERT-Adapter Evaluation on SST-2 datasets"
 source /ext3/env.sh
 conda activate
 python run_glue.py 
---model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-final 
+--model_name_or_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-final
 --task_name sst2 
 --do_eval 
 --max_seq_length 128 
