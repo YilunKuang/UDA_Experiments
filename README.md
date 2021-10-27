@@ -13,14 +13,11 @@ Use the uploaded version from [AdapterHub/bert-base-uncased-pf-imdb for bert-bas
 ## 3. Continued Pretraining of bert-base-uncased-with-imdb on the SST dataset
 
 ```bash
-mlm_script_target.slurm
+sbatch mlm_script_target.slurm
 ```
 
 ## 4. Adapter Evaluation for bert-base-uncased-with-imdb-and-sst and adapter on the SST dataset
 
-```python
-# TO BE IMPLEMENTED
-
-# Specify load_adapter option using the run_glue.py script:
-# https://github.com/Adapter-Hub/adapter-transformers/tree/master/examples/text-classification
+```bash
+sbatch adapter_script_target.slurm
 ```
