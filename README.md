@@ -20,4 +20,6 @@ mlm_script_target.slurm
 
 ```python
 # TO BE IMPLEMENTED
+
+# Need a evaluation script for the sst2 dataset
 ```
