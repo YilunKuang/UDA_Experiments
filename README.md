@@ -21,5 +21,6 @@ mlm_script_target.slurm
 ```python
 # TO BE IMPLEMENTED
 
-# Need a evaluation script for the sst2 dataset
+# Specify load_adapter option using the run_glue.py script:
+# https://github.com/Adapter-Hub/adapter-transformers/tree/master/examples/text-classification
 ```
