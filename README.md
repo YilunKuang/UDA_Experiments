@@ -2,8 +2,6 @@
 
 ## 1. Continued Pretraining of bert-base-uncased on the IMDB dataset
 
----
-
 ```bash
 sbatch mlm_script.slurm
 ```
