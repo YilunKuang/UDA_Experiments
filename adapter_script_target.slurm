@@ -23,7 +23,7 @@ python run_glue.py
 --output_dir /scratch/yk2516/UDA_Text_Generation/adapter_output 
 --overwrite_output_dir 
 
---load_adapter
+--load_adapter AdapterHub/bert-base-uncased-pf-imdb
 
 --adapter_config pfeiffer 
 --cache_dir /scratch/yk2516/cache'
