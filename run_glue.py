@@ -341,9 +341,15 @@ def main():
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
         config=config,
         cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
+#         revision=model_args.model_revision,
+#         use_auth_token=True if model_args.use_auth_token else None,
     )
+    model.add_classification_head(
+        data_args.task_name or "glue",
+        num_labels=num_labels,
+        id2label={i: v for i, v in enumerate(label_list)} if num_labels > 0 else None,
+    )
+
 
     # Setup adapters
     if adapter_args.train_adapter:
@@ -388,7 +394,8 @@ def main():
         if lang_adapter_name:
             model.set_active_adapters(ac.Stack(lang_adapter_name, task_name))
         else:
-            model.set_active_adapters([task_name])
+            # model.set_active_adapters([task_name])
+            model.set_active_adapters(task_name)
     else:
         if adapter_args.load_adapter or adapter_args.load_lang_adapter:
             raise ValueError(
