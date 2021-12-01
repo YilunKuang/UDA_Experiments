@@ -9,8 +9,8 @@ from transformers import Trainer
 
 # --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/source_finetune/checkpoint-final
 
-def tokenize_function(examples):
-    return tokenizer(examples["text"], padding="max_length", truncation=True)
+# def tokenize_function(examples):
+#     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
@@ -18,6 +18,10 @@ def compute_metrics(eval_pred):
     return metric.compute(predictions=predictions, references=labels)
 
 def main():
+    
+    def tokenize_function(examples):
+        return tokenizer(examples["text"], padding="max_length", truncation=True)
+    
     raw_datasets = load_dataset("imdb", cache_dir='/scratch/yk2516/cache')
     tokenizer = AutoTokenizer.from_pretrained("bert-base-cased", cache_dir='/scratch/yk2516/cache')
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
