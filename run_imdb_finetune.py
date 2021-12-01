@@ -8,7 +8,6 @@ from transformers import TrainingArguments
 from transformers import Trainer
 
 # --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/source_finetune/checkpoint-final
-load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
 
 def tokenize_function(examples):
     return tokenizer(examples["text"], padding="max_length", truncation=True)
