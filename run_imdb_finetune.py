@@ -7,6 +7,9 @@ from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments
 from transformers import Trainer
 
+# --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/source_finetune/checkpoint-final
+load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
+
 def tokenize_function(examples):
     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
@@ -16,8 +19,8 @@ def compute_metrics(eval_pred):
     return metric.compute(predictions=predictions, references=labels)
 
 def main():
-    raw_datasets = load_dataset("imdb")
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
+    raw_datasets = load_dataset("imdb", cache_dir='/scratch/yk2516/cache')
+    tokenizer = AutoTokenizer.from_pretrained("bert-base-cased", cache_dir='/scratch/yk2516/cache')
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["test"]
@@ -25,7 +28,7 @@ def main():
     # small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(100))
     # small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(100))
 
-    model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2)
+    model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2, cache_dir='/scratch/yk2516/cache')
     # model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2)
 
     training_args = TrainingArguments("test_trainer")
