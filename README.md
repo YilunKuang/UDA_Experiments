@@ -21,3 +21,7 @@ sbatch mlm_script_target.slurm
 ```bash
 sbatch adapter_script_target.slurm
 ```
+## Additional: Fine-Tune bert-base-uncased(-with-imdb) on IMDB (Source Domain)
+```bash
+sbatch source_fine_tune.slurm
+```
