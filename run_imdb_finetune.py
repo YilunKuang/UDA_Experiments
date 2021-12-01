@@ -12,16 +12,15 @@ from transformers import Trainer
 # def tokenize_function(examples):
 #     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
-    return metric.compute(predictions=predictions, references=labels)
-
 def main():
     
     def tokenize_function(examples):
         return tokenizer(examples["text"], padding="max_length", truncation=True)
-    
+    def compute_metrics(eval_pred):
+        logits, labels = eval_pred
+        predictions = np.argmax(logits, axis=-1)
+        return metric.compute(predictions=predictions, references=labels)
+
     raw_datasets = load_dataset("imdb", cache_dir='/scratch/yk2516/cache')
     tokenizer = AutoTokenizer.from_pretrained("bert-base-cased", cache_dir='/scratch/yk2516/cache')
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
@@ -31,8 +30,8 @@ def main():
     # small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(100))
     # small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(100))
 
-    model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2, cache_dir='/scratch/yk2516/cache')
-    # model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2)
+    # model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=2, cache_dir='/scratch/yk2516/cache')
+    model = AutoModelForSequenceClassification.from_pretrained('/scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-final', num_labels=2, cache_dir='/scratch/yk2516/cache')
 
     training_args = TrainingArguments("test_trainer")
     trainer = Trainer(
