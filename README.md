@@ -43,6 +43,8 @@ python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generatio
 ```
 
 ### 3. Evaluate the final model on the SST (Target Domain) using the Classification Objective
-
+```python
+python run_sst_evaluate.py
+```
 
 
