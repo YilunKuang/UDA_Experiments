@@ -12,6 +12,6 @@ singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:ro /scratch/work/p
 echo "Running - Run BERT MLM Training on SST-2 datasets"
 source /ext3/env.sh
 conda activate
-python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-final --dataset_name sst --dataset_config_name default --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-final --cache_dir /scratch/yk2516/cache'
+python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-final --dataset_name sst2 --dataset_config_name default --do_train --do_eval --output_dir /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-final --cache_dir /scratch/yk2516/cache'
 
 
