@@ -39,6 +39,29 @@ python3 benchmark/run_imdb_finetune.py
 python3 benchmark/run_sst2_evaluate.py
 ``` 
 
+## Result
+
+### 1. Adapter Result (SST-2)
+
+```shell
+***** eval metrics *****
+  eval_accuracy           =     0.5516
+  eval_loss               =     0.6816
+  eval_samples_per_second =    318.612
+  eval_steps_per_second   =     39.826
+```
+
+### 2. Benchmark Result (SST-2)
+
+```shell
+***** eval metrics *****
+  eval_accuracy           =     0.8784
+  eval_loss               =     0.6598
+  eval_runtime            = 0:00:11.51
+  eval_samples_per_second =     75.722
+  eval_steps_per_second   =      9.465
+  perplexity              =     1.9345
+```
 
 <!-- ### 1. Fine-Tune the bert-base-uncased(-with-imdb) on IMDB (Source Domain) using the Classification Objective
 ```bash
