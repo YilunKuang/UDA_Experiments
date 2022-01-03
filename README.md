@@ -5,7 +5,8 @@
 ### 1. Continued Pretraining of bert-base-uncased on the IMDB dataset
 
 ```bash
-sbatch mlm_script.slurm
+cd adapters
+sbatch mlm_script_source.slurm
 ```
 
 ### 2. Adapter training for bert-base-uncased on the IMDB dataset
@@ -29,6 +30,7 @@ sbatch adapter_script_target.slurm
 ### 1. Fine-Tune the bert-base-uncased on IMDB (Source Domain) using the Classification Objective
 
 ```bash
+cd ..
 python3 benchmark/run_imdb_finetune.py
 ```
 
