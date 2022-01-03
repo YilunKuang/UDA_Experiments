@@ -26,7 +26,19 @@ sbatch adapter_script_target.slurm
 
 ## Benchmark
 
-### 1. Fine-Tune the bert-base-uncased(-with-imdb) on IMDB (Source Domain) using the Classification Objective
+### 1. Fine-Tune the bert-base-uncased on IMDB (Source Domain) using the Classification Objective
+
+```bash
+python3 benchmark/run_imdb_finetune.py
+```
+
+### 2. Zero-shot evaluate the finetuned BERT on the SST-2 (Target Domain)
+```python
+python3 benchmark/run_sst2_evaluate.py
+``` 
+
+
+<!-- ### 1. Fine-Tune the bert-base-uncased(-with-imdb) on IMDB (Source Domain) using the Classification Objective
 ```bash
 sbatch source_fine_tune.slurm
 ```
@@ -45,6 +57,6 @@ python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generatio
 ### 3. Evaluate the final model on the SST (Target Domain) using the Classification Objective
 ```python
 python run_sst_evaluate.py
-```
+``` -->
 
 
