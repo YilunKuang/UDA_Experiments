@@ -45,10 +45,12 @@ python3 benchmark/run_sst2_evaluate.py
 
 ```shell
 ***** eval metrics *****
-  eval_accuracy           =     0.5516
-  eval_loss               =     0.6816
-  eval_samples_per_second =    318.612
-  eval_steps_per_second   =     39.826
+  eval_accuracy           =     0.8716
+  eval_loss               =     0.3568
+  eval_runtime            = 0:00:18.69
+  eval_samples_per_second =     46.645
+  eval_steps_per_second   =      5.831
+  perplexity              =     1.4288
 ```
 
 ### 2. Benchmark Result (SST-2)

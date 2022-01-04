@@ -8,7 +8,7 @@
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/target_pretrain_output/slurm_train_%j.out
 
-singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:ro /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash -c '
+singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash -c '
 echo "Running - Run BERT MLM Training on SST-2 datasets"
 source /ext3/env.sh
 conda activate

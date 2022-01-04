@@ -1,0 +1,2 @@
+adapter-transformers==2.2.0
+datasets==1.17.0
