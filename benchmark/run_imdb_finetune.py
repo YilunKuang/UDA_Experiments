@@ -7,21 +7,24 @@ This script is used to finetune the bert-base-uncased model on the imdb datasets
 using the classification objective. 
 '''
 import math
+import argparse
 import numpy as np
 from datasets import load_metric
 from datasets import load_dataset
 from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments
-from transformers import Trainer
+from transformers import Trainer, set_seed
 
-def main():
+def main(args):
     def tokenize_function(examples):
         return tokenizer(examples["text"], padding="max_length", truncation=True)
     def compute_metrics(eval_pred):
         logits, labels = eval_pred
         predictions = np.argmax(logits, axis=-1)
         return metric.compute(predictions=predictions, references=labels)
+        
+    set_seed(args.random_seed)
 
     raw_datasets = load_dataset("imdb", cache_dir='/scratch/yk2516/cache')
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir='/scratch/yk2516/cache')
@@ -37,4 +40,8 @@ def main():
     train_result = trainer.train()
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--random_seed", type=int, default=17)
+    args = parser.parse_args()
+
+    main(args)

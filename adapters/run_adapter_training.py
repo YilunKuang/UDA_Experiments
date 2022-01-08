@@ -31,7 +31,7 @@ def main(args):
     model.add_adapter("imdb_source"+str(args.random_seed))
     model.add_classification_head("imdb_source"+str(args.random_seed), num_labels=2)
     model.train_adapter("imdb_source"+str(args.random_seed))
-    training_args = TrainingArguments("imdb_source"+str(args.random_seed))
+    training_args = TrainingArguments(output_dir=args.output_dir+"imdb_source"+str(args.random_seed), overwrite_output_dir=True)
     trainer = AdapterTrainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
     )
@@ -51,7 +51,7 @@ def main(args):
     trainer.save_metrics("eval", metrics)
 
     try:
-        model.save_adapter("final_adapter", "imdb_source"+str(args.random_seed))
+        model.save_adapter(args.output_dir+"final_adapter", "imdb_source"+str(args.random_seed))
     except:
         model.save_adapter("./final_adapter", "imdb_source"+str(args.random_seed))
         print("*** The output is saved in ./final adapter ***")

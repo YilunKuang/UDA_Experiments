@@ -1,10 +1,11 @@
 import math
 import torch
+import argparse
 import numpy as np
 import torch.nn as nn
 from datasets import load_metric
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelWithHeads
+from transformers import AutoTokenizer, AutoModelWithHeads, set_seed
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 
 def main(args):
@@ -35,6 +36,7 @@ def main(args):
         print('*** The tokenizer in use is bert-base-uncased ***')
     
     model = AutoModelWithHeads.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
+    head_name = model.load_head(args.adapters_dir)
     adapter_name = model.load_adapter(args.adapters_dir)
     model.set_active_adapters(adapter_name)
 
@@ -47,7 +49,8 @@ def main(args):
     f_logits_prob = open(args.output_dir+"/logits_prob.txt", "a")
     f_labels = open(args.output_dir+"/gold_label.txt","a")
 
-    training_args = TrainingArguments(output_dir=args.output_dir+"/sst2_target")
+    training_args = TrainingArguments(output_dir=args.output_dir+"/sst2_target",
+                                        overwrite_output_dir=True)
     trainer = AdapterTrainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
     )

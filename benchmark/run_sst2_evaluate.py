@@ -15,9 +15,9 @@ from datasets import load_dataset
 from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments
-from transformers import Trainer
+from transformers import Trainer, set_seed
 
-def main():
+def main(args):
     def tokenize_function(examples):
         return tokenizer(examples["sentence"], padding="max_length", truncation=True)
     def compute_metrics(eval_pred):
@@ -35,6 +35,8 @@ def main():
 
         predictions = np.argmax(logits, axis=-1)
         return metric.compute(predictions=predictions, references=labels)
+
+    set_seed(args.random_seed)
 
     # Initialize model and dataset
     model = AutoModelForSequenceClassification.from_pretrained('/scratch/yk2516/UDA_Text_Generation/benchmark/vanilla_bert_finetuned_on_imdb/test_trainer',
@@ -78,4 +80,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--random_seed", type=int, default=17)
+    args = parser.parse_args()
+
+    main(args)
