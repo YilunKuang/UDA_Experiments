@@ -28,10 +28,10 @@ def main(args):
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["test"]
 
-    model.add_adapter("imdb_source")
-    model.add_classification_head('imdb_source', num_labels=2)
-    model.train_adapter("imdb_source")
-    training_args = TrainingArguments("imdb_source")
+    model.add_adapter("imdb_source"+str(args.random_seed))
+    model.add_classification_head("imdb_source"+str(args.random_seed), num_labels=2)
+    model.train_adapter("imdb_source"+str(args.random_seed))
+    training_args = TrainingArguments("imdb_source"+str(args.random_seed))
     trainer = AdapterTrainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
     )
@@ -51,9 +51,10 @@ def main(args):
     trainer.save_metrics("eval", metrics)
 
     try:
-        model.save_adapter("./final_adapter", "imdb_source")
+        model.save_adapter("final_adapter", "imdb_source"+str(args.random_seed))
     except:
-        model.save_adapter("final_adapter", "imdb_source")
+        model.save_adapter("./final_adapter", "imdb_source"+str(args.random_seed))
+        print("*** The output is saved in ./final adapter ***")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -62,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--random_seed", type=int, default=42)
     parser.add_argument("--dataset_name", type=str, default='imdb')
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
+    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/source_adapter_output/17-83/')
     
     args = parser.parse_args()
 

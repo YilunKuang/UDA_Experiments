@@ -43,11 +43,11 @@ def main(args):
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["validation"]
 
-    f_logits = open("logits.txt", "a")
-    f_logits_prob = open("logits_prob.txt", "a")
-    f_labels = open("gold_label.txt","a")
+    f_logits = open(args.output_dir+"/logits.txt", "a")
+    f_logits_prob = open(args.output_dir+"/logits_prob.txt", "a")
+    f_labels = open(args.output_dir+"/gold_label.txt","a")
 
-    training_args = TrainingArguments("sst2_target")
+    training_args = TrainingArguments(output_dir=args.output_dir+"/sst2_target")
     trainer = AdapterTrainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
     )
@@ -71,12 +71,13 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_and_tokenizer_path", type=str, 
-                            default='/scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-random-seed-42')
-    parser.add_argument("--random_seed", type=int, default=42)
+                            default='/scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-17-random-seed-17')
+    parser.add_argument("--random_seed", type=int, default=17)
     parser.add_argument("--adapters_dir", type=str, default='none')
     parser.add_argument("--dataset_name", type=str, default='sst2')
+    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/target_adapter_output/17-17-17-17')
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
-    
+
     args = parser.parse_args()
 
     main(args)
