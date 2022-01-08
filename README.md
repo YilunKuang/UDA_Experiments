@@ -11,7 +11,9 @@ sbatch mlm_script_source.slurm
 
 ### 2. Adapter training for bert-base-uncased on the IMDB dataset
 
-Use the uploaded version from [AdapterHub/bert-base-uncased-pf-imdb for bert-base-uncased](https://huggingface.co/AdapterHub/bert-base-uncased-pf-imdb)
+```bash
+sbatch adapter_script_source.slurm
+```
 
 ### 3. Continued Pretraining of bert-base-uncased-with-imdb on the SST dataset
 
@@ -19,7 +21,7 @@ Use the uploaded version from [AdapterHub/bert-base-uncased-pf-imdb for bert-bas
 sbatch mlm_script_target.slurm
 ```
 
-### 4. Adapter Evaluation for bert-base-uncased-with-imdb-and-sst and adapter on the SST dataset
+### 4. Adapter Inference for bert-base-uncased-with-imdb-and-sst and adapter on the SST dataset
 
 ```bash
 sbatch adapter_script_target.slurm
