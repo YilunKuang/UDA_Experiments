@@ -26,14 +26,14 @@ def main(args):
         
     set_seed(args.random_seed)
 
-    raw_datasets = load_dataset("imdb", cache_dir='/scratch/yk2516/cache')
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir='/scratch/yk2516/cache')
+    raw_datasets = load_dataset(args.dataset_name, cache_dir=args.cache_dir)
+    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir=args.cache_dir)
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["test"]
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2, cache_dir='/scratch/yk2516/cache')
+    model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2, cache_dir=args.cache_dir)
 
-    training_args = TrainingArguments("test_trainer")
+    training_args = TrainingArguments(output_dir=args.output_dir+"/bert_imdb_finetune", overwrite_output_dir=True)
     trainer = Trainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset
     )
@@ -41,7 +41,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset_name", type=str, default='imdb')
     parser.add_argument("--random_seed", type=int, default=17)
+    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17')
+    parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
+
     args = parser.parse_args()
 
     main(args)

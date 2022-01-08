@@ -39,20 +39,25 @@ def main(args):
     set_seed(args.random_seed)
 
     # Initialize model and dataset
-    model = AutoModelForSequenceClassification.from_pretrained('/scratch/yk2516/UDA_Text_Generation/benchmark/vanilla_bert_finetuned_on_imdb/test_trainer',
-                                                                num_labels=2, cache_dir='/scratch/yk2516/cache')
-    raw_datasets = load_dataset("glue", "sst2", cache_dir='/scratch/yk2516/cache')
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir='/scratch/yk2516/cache')
+    model = AutoModelForSequenceClassification.from_pretrained(args.model_and_tokenizer_path, num_labels=2, cache_dir=args.cache_dir)
+    
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
+    except:
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir=args.cache_dir)
+        print('*** The tokenizer in use is bert-base-uncased ***')
+
+    raw_datasets = load_dataset("glue", args.dataset_name, cache_dir=args.cache_dir)
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["validation"]
 
-    f_logits = open("logits.txt", "a")
-    f_logits_prob = open("logits_prob.txt", "a")
-    f_labels = open("gold_label.txt","a")
+    f_logits = open(args.logits_dir+"/logits"+str(args.random_seed)+".txt", "a")
+    f_logits_prob = open(args.logits_dir+"/logits_prob"+str(args.random_seed)+".txt", "a")
+    f_labels = open(args.logits_dir+"/gold_label"+str(args.random_seed)+".txt","a")
 
     # Evaluation
-    training_args = TrainingArguments("sst2_test")
+    training_args = TrainingArguments(args.output_dir+"/sst2_test")
     metric = load_metric("accuracy")
     trainer = Trainer(
         model=model,
@@ -78,10 +83,15 @@ def main(args):
     trainer.save_metrics("eval", metrics)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model_and_tokenizer_path", type=str, 
+                            default='/scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune')
+    parser.add_argument("--dataset_name", type=str, default='sst2')
     parser.add_argument("--random_seed", type=int, default=17)
+    parser.add_argument("--logits_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output')
+    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17')
+    parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
     args = parser.parse_args()
 
     main(args)

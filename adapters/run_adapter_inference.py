@@ -73,12 +73,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_and_tokenizer_path", type=str, 
-                            default='/scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-17-random-seed-17')
+    parser.add_argument("--model_and_tokenizer_path", type=str)
+    parser.add_argument("--adapters_dir", type=str)
+    parser.add_argument("--output_dir",type=str)
     parser.add_argument("--random_seed", type=int, default=17)
-    parser.add_argument("--adapters_dir", type=str, default='none')
     parser.add_argument("--dataset_name", type=str, default='sst2')
-    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/target_adapter_output/17-17-17-17')
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
 
     args = parser.parse_args()
