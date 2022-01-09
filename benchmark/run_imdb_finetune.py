@@ -38,6 +38,7 @@ def main(args):
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset
     )
     train_result = trainer.train()
+    trainer.save_model()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
