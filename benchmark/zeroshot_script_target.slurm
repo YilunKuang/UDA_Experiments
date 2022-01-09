@@ -14,13 +14,13 @@ source /ext3/env.sh
 conda activate
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune --random_seed 17 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17-17
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune --random_seed 42 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17-42
-python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17-42
+python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17-83
 
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/42/bert_imdb_finetune --random_seed 17 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/42-17
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/42/bert_imdb_finetune --random_seed 42 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/42-42
-python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/42/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/42-42
+python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/42/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/42-83
 
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/83/bert_imdb_finetune --random_seed 17 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/83-17
 python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/83/bert_imdb_finetune --random_seed 42 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/83-42
-python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/83/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/83-42'
+python run_sst2_evaluate.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/83/bert_imdb_finetune --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/83-83'
 
