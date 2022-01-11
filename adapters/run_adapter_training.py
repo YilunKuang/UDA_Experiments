@@ -7,8 +7,12 @@ from transformers import AutoTokenizer, AutoModelWithHeads, set_seed
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 
 def main(args):
+    column_dict = {'imdb':'text','sst2':'sentence'}
+    glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
+
     def tokenize_function(examples):
-        return tokenizer(examples["text"], padding="max_length", truncation=True)
+        return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
+        #return tokenizer(examples["text"], padding="max_length", truncation=True)
     def compute_metrics(eval_pred):
         logits, labels = eval_pred
         predictions = np.argmax(logits, axis=-1)
@@ -22,16 +26,20 @@ def main(args):
         tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', cache_dir=args.cache_dir)
         print('*** The tokenizer in use is bert-base-uncased ***')
     model = AutoModelWithHeads.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
+    
+    if args.dataset_name in glue_lst:
+        dataset = load_dataset("glue", args.dataset_name, cache_dir=args.cache_dir)
+    else: 
+        dataset = load_dataset(args.dataset_name, cache_dir=args.cache_dir)
 
-    dataset = load_dataset("imdb", cache_dir=args.cache_dir)
     tokenized_datasets = dataset.map(tokenize_function, batched=True)
     full_train_dataset = tokenized_datasets["train"]
     full_eval_dataset = tokenized_datasets["test"]
 
-    model.add_adapter("imdb_source"+str(args.random_seed))
-    model.add_classification_head("imdb_source"+str(args.random_seed), num_labels=2)
-    model.train_adapter("imdb_source"+str(args.random_seed))
-    training_args = TrainingArguments(output_dir=args.output_dir+"imdb_source"+str(args.random_seed), overwrite_output_dir=True)
+    model.add_adapter(args.dataset_name+"_source"+str(args.random_seed))
+    model.add_classification_head(args.dataset_name+"_source"+str(args.random_seed), num_labels=2)
+    model.train_adapter(args.dataset_name+"_source"+str(args.random_seed))
+    training_args = TrainingArguments(output_dir=args.output_dir+args.dataset_name+"_source"+str(args.random_seed), overwrite_output_dir=True)
     trainer = AdapterTrainer(
         model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
     )
@@ -58,12 +66,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_and_tokenizer_path", type=str, 
-                            default='/scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-random-seed-17')
-    parser.add_argument("--random_seed", type=int, default=42)
-    parser.add_argument("--dataset_name", type=str, default='imdb')
+    parser.add_argument("--output_dir",type=str)
+    parser.add_argument("--random_seed", type=int)
+    parser.add_argument("--dataset_name", type=str)
+    parser.add_argument("--model_and_tokenizer_path", type=str)
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
-    parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/source_adapter_output/17-83/')
+    
     
     args = parser.parse_args()
 
