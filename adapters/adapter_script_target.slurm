@@ -39,6 +39,9 @@ python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generati
 
 
 '
+# SINGULARITY
+# singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash
+# singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-0.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash
 
 # # 17 Start
 # # 17-17 (the 4th random seed is kept at 17 as it doesn't change the eval_result during the adapter inference phase)

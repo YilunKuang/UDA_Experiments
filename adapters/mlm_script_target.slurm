@@ -8,12 +8,14 @@
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_file/slurm_train_%j.out
 
-singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-5.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
+singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-6.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
 echo "Running - Run BERT MLM Training on Target datasets"
 source /ext3/env.sh
 conda activate
 
-
+python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-random-seed-83 --dataset_name yelp_polarity --do_train --do_eval --seed 17 --output_dir /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/imdb-yelp/checkpoint-83-random-seed-17 --cache_dir /scratch/yk2516/cache
+python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-random-seed-83 --dataset_name yelp_polarity --do_train --do_eval --seed 42 --output_dir /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/imdb-yelp/checkpoint-83-random-seed-42 --cache_dir /scratch/yk2516/cache
+python run_mlm_target.py --model_name_or_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/checkpoint-random-seed-83 --dataset_name yelp_polarity --do_train --do_eval --seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/imdb-yelp/checkpoint-83-random-seed-83 --cache_dir /scratch/yk2516/cache
 '
 
 # SINGULARITY
