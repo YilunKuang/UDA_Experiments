@@ -45,6 +45,7 @@ def main(args):
     )
 
     train_result = trainer.train()
+    trainer.save_model()
 
     metric = load_metric("accuracy")
     metrics = trainer.evaluate()
@@ -59,9 +60,9 @@ def main(args):
     trainer.save_metrics("eval", metrics)
 
     try:
-        model.save_adapter(args.output_dir+"final_adapter", "imdb_source"+str(args.random_seed))
+        model.save_adapter(args.output_dir+"final_adapter", args.dataset_name+"_source"+str(args.random_seed))
     except:
-        model.save_adapter("./final_adapter", "imdb_source"+str(args.random_seed))
+        model.save_adapter("./final_adapter", args.dataset_name+"_source"+str(args.random_seed))
         print("*** The output is saved in ./final adapter ***")
 
 if __name__ == "__main__":
