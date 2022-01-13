@@ -16,15 +16,10 @@ conda activate
 # ****** IMDB | Yelp ****** #
 
 # 83 Start
-# 83-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-17/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-17 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-17-17-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-17/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-42  --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-17-42-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-17/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-83 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-17-83-17
-
-# 83-42 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-42/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-17 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-42-17-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-42/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-42  --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-42-42-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-42/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-83 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-42-83-17
+# 83-83 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-17 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-17-17
+python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-42  --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-42-17
+python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-83 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-83-17
 
 '
 # SINGULARITY
