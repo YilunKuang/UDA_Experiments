@@ -5,26 +5,25 @@
 ### 1. Continued Pretraining of bert-base-uncased on the IMDB dataset
 
 ```bash
-cd adapters
-sbatch mlm_script_source.slurm
+sbatch adapters/mlm_script_source.slurm
 ```
 
 ### 2. Adapter training for bert-base-uncased on the IMDB dataset
 
 ```bash
-sbatch adapter_script_source.slurm
+sbatch adapters/adapter_script_source.slurm
 ```
 
 ### 3. Continued Pretraining of bert-base-uncased-with-imdb on the SST dataset
 
 ```bash
-sbatch mlm_script_target.slurm
+sbatch adapters/mlm_script_target.slurm
 ```
 
 ### 4. Adapter Inference for bert-base-uncased-with-imdb-and-sst and adapter on the SST dataset
 
 ```bash
-sbatch adapter_script_target.slurm
+sbatch adapters/adapter_script_target.slurm
 ```
 
 ## Benchmark
@@ -32,16 +31,15 @@ sbatch adapter_script_target.slurm
 ### 1. Fine-Tune the bert-base-uncased on IMDB (Source Domain) using the Classification Objective
 
 ```bash
-cd ..
-python3 benchmark/run_imdb_finetune.py
+sbatch benchmark/finetune_script_source.slurm
 ```
 
 ### 2. Zero-shot evaluate the finetuned BERT on the SST-2 (Target Domain)
 ```python
-python3 benchmark/run_sst2_evaluate.py
+sbatch benchmark/zeroshot_script_target.slurm
 ``` 
 
-## Result
+<!-- ## Result
 
 ### 1. Adapter Result (SST-2)
 
@@ -65,7 +63,7 @@ python3 benchmark/run_sst2_evaluate.py
   eval_samples_per_second =     75.722
   eval_steps_per_second   =      9.465
   perplexity              =     1.9345
-```
+``` -->
 
 <!-- ### 1. Fine-Tune the bert-base-uncased(-with-imdb) on IMDB (Source Domain) using the Classification Objective
 ```bash
