@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelWithHeads, set_seed
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 
 def main(args):
-    column_dict = {'imdb':'text','sst2':'sentence'}
+    column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
     glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
 
     def tokenize_function(examples):
