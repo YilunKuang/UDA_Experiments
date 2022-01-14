@@ -31,7 +31,7 @@ sbatch adapters/adapter_script_target.slurm
 ### 1. Fine-Tune the bert-base-uncased on IMDB (Source Domain) using the Classification Objective
 
 ```bash
-sbatch benchmark/finetune_script_source.slurm
+sbatch benchmark/finetune_script.slurm
 ```
 
 ### 2. Zero-shot evaluate the finetuned BERT on the SST-2 (Target Domain)

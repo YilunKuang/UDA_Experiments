@@ -28,9 +28,13 @@ def main(args):
         return metric.compute(predictions=predictions, references=labels)
         
     set_seed(args.random_seed)
-
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2, cache_dir=args.cache_dir)
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir=args.cache_dir)
+    
+    model = AutoModelForSequenceClassification.from_pretrained(args.model_and_tokenizer_path, num_labels=2, cache_dir=args.cache_dir)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
+    except:
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir=args.cache_dir)
+        print('*** The tokenizer in use is bert-base-uncased ***')
 
     if args.dataset_name in glue_lst:
         raw_datasets = load_dataset("glue", args.dataset_name, cache_dir=args.cache_dir)
@@ -59,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--random_seed", type=int)
     parser.add_argument("--output_dir",type=str)
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
+    parser.add_argument("--model_and_tokenizer_path", type=str, default='bert-base-uncased')
 
     args = parser.parse_args()
 
