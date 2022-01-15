@@ -50,12 +50,31 @@ def main(args):
         full_train_dataset = tokenized_datasets["train"]
         full_eval_dataset = tokenized_datasets["validation"]
 
+    metric = load_metric("accuracy")
     training_args = TrainingArguments(output_dir=args.output_dir+"/bert_"+args.dataset_name+"_finetune", overwrite_output_dir=True)
     trainer = Trainer(
-        model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset
+        model=model, 
+        args=training_args, 
+        train_dataset=full_train_dataset, 
+        eval_dataset=full_eval_dataset,
+        compute_metrics=compute_metrics,
     )
     train_result = trainer.train()
     trainer.save_model()
+
+    try:
+        metrics = trainer.evaluate()
+        # save results
+        try:
+            perplexity = math.exp(metrics["eval_loss"])
+        except OverflowError:
+            perplexity = float("inf")
+        metrics["perplexity"] = perplexity
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+    except:
+        print(" *** Evaluation cannot be done due to errors! *** ")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
