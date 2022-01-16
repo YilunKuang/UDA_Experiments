@@ -97,8 +97,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_and_tokenizer_path", type=str, 
-                            default='/scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/17/bert_imdb_finetune')
+    parser.add_argument("--model_and_tokenizer_path", type=str)
     parser.add_argument("--model_seed",type=str)
     parser.add_argument("--dataset_name", type=str, default='sst2')
     parser.add_argument("--random_seed", type=int, default=17)
