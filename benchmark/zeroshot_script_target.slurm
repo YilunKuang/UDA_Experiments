@@ -2,7 +2,7 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=4:00:00
+#SBATCH --time=5:00:00
 #SBATCH --mem=128G
 #SBATCH --job-name=zeroshot_bert_target
 #SBATCH --mail-user=yk2516@nyu.edu
@@ -15,18 +15,18 @@ conda activate
 mlm_model_path=/scratch/yk2516/UDA_Text_Generation/benchmark/target_mlm_output
 uda_result_path=/scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output
 
-# SST2 | Yelp
+# IMDB | SST-2
 # ---------------------------------------------------------------------------------------------------------------- #
 # 17-17-x
 
 for VARIABLE_J in 17 42 83
 do
     python run_target_evaluate.py --model_seed 17 \
-                                --model_and_tokenizer_path $mlm_model_path/sst2-yelp/17-17 \
-                                --logits_dir $uda_result_path/sst2-yelp \
-                                --dataset_name yelp_polarity \
+                                --model_and_tokenizer_path $mlm_model_path/imdb-sst2/17-17 \
+                                --logits_dir $uda_result_path/imdb-sst2 \
+                                --dataset_name sst2 \
                                 --random_seed $VARIABLE_J \
-                                --output_dir $uda_result_path/sst2-yelp/17-17-$VARIABLE_J
+                                --output_dir $uda_result_path/imdb-sst2/17-17-$VARIABLE_J
 done
 
 # ---------------------------------------------------------------------------------------------------------------- #
@@ -63,9 +63,17 @@ done
 # SST2 | Yelp
 # # ---------------------------------------------------------------------------------------------------------------- #
 # # 17-17-x
-# python run_target_evaluate.py --model_seed 17 --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/target_finetune_output/sst2-yelp/17-17/bert_yelp_polarity_finetune --logits_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp --dataset_name yelp_polarity --random_seed 17 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp/17-17-17
-# python run_target_evaluate.py --model_seed 17 --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/target_finetune_output/sst2-yelp/17-17/bert_yelp_polarity_finetune --logits_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp --dataset_name yelp_polarity --random_seed 42 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp/17-17-42
-# python run_target_evaluate.py --model_seed 17 --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/target_finetune_output/sst2-yelp/17-17/bert_yelp_polarity_finetune --logits_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp --dataset_name yelp_polarity --random_seed 83 --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_uda_output/sst2-yelp/17-17-83
+
+# for VARIABLE_J in 17 42 83
+# do
+#     python run_target_evaluate.py --model_seed 17 \
+#                                 --model_and_tokenizer_path $mlm_model_path/sst2-yelp/17-17 \
+#                                 --logits_dir $uda_result_path/sst2-yelp \
+#                                 --dataset_name yelp_polarity \
+#                                 --random_seed $VARIABLE_J \
+#                                 --output_dir $uda_result_path/sst2-yelp/17-17-$VARIABLE_J
+# done
+
 # # ---------------------------------------------------------------------------------------------------------------- #
 
 # IMDB | Yelp
