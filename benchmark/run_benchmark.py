@@ -20,11 +20,34 @@ from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments
 from transformers import Trainer, set_seed
 
+def sanity_check(args, ind_high_confidence, pseudo_label, raw_datasets):
+    with open(args.indices_dir+"/"+args.sanity_logit_file_name) as f:
+        logits_prob = f.readlines()
+        logits_prob = list(map(lambda x: x[7:],logits_prob))
+        logits_prob = list(map(lambda x: x[:-2],logits_prob))
+        logits_prob = list(map(lambda x: x[:-1].strip('][').split(', '),logits_prob))
+        logits_prob = list(map(lambda x: [float(x[0]),float(x[1])],logits_prob))
+
+        lst_largest_prob = list(map(lambda x: max(x), logits_prob))
+        ind_lst_largest_prob = np.argsort(lst_largest_prob)[::-1]
+        ind_lst_largest_prob = ind_lst_largest_prob[:int(len(ind_lst_largest_prob)*0.90)]
+
+        predictions = np.array(np.argmax(logits_prob, axis=-1))
+        pseudo_labels = predictions[ind_lst_largest_prob]
+
+        zip_dataset = zip(ind_lst_largest_prob,pseudo_labels)
+        zip_dict = dict(zip_dataset)
+        dict_items = zip_dict.items()
+        sorted_dict = dict(sorted(dict_items))
+
+        for i in range(len(pseudo_label)):
+            assert(sorted_dict[ind_high_confidence[i]]==pseudo_label[i])
+        assert(raw_datasets['train']['label']==pseudo_label)
+        
+
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
-    
-    # !!!!!!!!!!!!!!
-    column_dict_label = {'yelp_polarity':'label'}
+    column_dict_label = {'yelp_polarity':'label','imdb':'label','sst2':'label'}
 
     glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
 
@@ -68,15 +91,20 @@ def main(args):
     
     if args.self_training:
         print(f"The new training dataset size is {raw_datasets['train'].num_rows}")
-        ind_high_confidence = np.load(args.indices_dir).tolist()
-        # !!!!!!!! 
-        pseudo_label = 1
+        ind_high_confidence = np.load(args.indices_dir+"/conf_indices.npy").tolist()
+        pseudo_label = np.load(args.indices_dir+"/pseudolabels.npy").tolist()
 
         raw_train_datasets = raw_datasets['train'].select(ind_high_confidence)
-        df = pd.DataFrame({column_dict[args.dataset_name]:raw_train_datasets[column_dict[args.dataset_name]],\
-                           column_dict_label[args.dataset_name]:pseudo_label})
-        raw_train_datasets = Dataset.from_pandas(df)
+        # df = pd.DataFrame({column_dict[args.dataset_name]:raw_train_datasets[column_dict[args.dataset_name]],\
+        #                    column_dict_label[args.dataset_name]:pseudo_label})
+        # raw_train_datasets = Dataset.from_pandas(df)
         raw_datasets['train'] = raw_train_datasets
+
+        # sanity check
+        # try:
+        #     sanity_check(args, ind_high_confidence, pseudo_label, raw_datasets)
+        # except:
+        #     print(" *** sanity check failed! Check your data *** ")
 
         print(f"The new training dataset size after selection is {raw_datasets['train'].num_rows}")
         
@@ -142,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--do_eval", action="store_true")
     parser.add_argument("--self_training",action="store_true")
     parser.add_argument("--indices_dir",type=str,
-            default="/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/imdb-yelp/conf_indices.npy")
+            default="/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/imdb-yelp")
     parser.add_argument("--model_and_tokenizer_path", type=str)
     parser.add_argument("--model_seed",type=str)
     parser.add_argument("--dataset_name", type=str, default='sst2')
@@ -150,6 +178,7 @@ if __name__ == "__main__":
     parser.add_argument("--logits_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output')
     parser.add_argument("--output_dir",type=str,default='/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/17')
     parser.add_argument("--cache_dir", type=str, default='/scratch/yk2516/cache')
+    parser.add_argument("--sanity_logit_file_name",type=str,default='logits17_17.txt')
     args = parser.parse_args()
 
     main(args)

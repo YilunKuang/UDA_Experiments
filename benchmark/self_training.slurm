@@ -2,7 +2,7 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=6:00:00
+#SBATCH --time=3:00:00
 #SBATCH --mem=128G
 #SBATCH --job-name=self_training_bert_target
 #SBATCH --mail-user=yk2516@nyu.edu
@@ -24,17 +24,37 @@ output_path=/scratch/yk2516/UDA_Text_Generation/benchmark/target_self_train_outp
 python run_benchmark.py --do_train \
                         --do_eval \
                         --self_training \
-                        --indices_dir $zeroshot_path/imdb-yelp/conf_indices.npy \
+                        --indices_dir $zeroshot_path/imdb-yelp \
                         --model_and_tokenizer_path $model_path/imdb/17/bert_imdb_finetune \
                         --model_seed 17 \
                         --dataset_name yelp_polarity \
                         --random_seed 17 \
                         --logits_dir $logits_path/benchmark3/imdb-yelp/17-17 \
                         --output_dir $output_path/imdb-yelp/17-17 \
-                        --cache_dir /scratch/yk2516/cache
+                        --cache_dir /scratch/yk2516/cache \
+                        --sanity_logit_file_name logits17_17.txt
 # ---------------------------------------------------------------------------------------------------------------- #
 
+
 '
+
+# # SST2 | Yelp
+# # ---------------------------------------------------------------------------------------------------------------- #
+# # 17-17
+
+# python run_benchmark.py --do_train \
+#                         --do_eval \
+#                         --self_training \
+#                         --indices_dir $zeroshot_path/sst2-yelp \
+#                         --model_and_tokenizer_path $model_path/sst2/17/bert_sst2_finetune \
+#                         --model_seed 17 \
+#                         --dataset_name yelp_polarity \
+#                         --random_seed 17 \
+#                         --logits_dir $logits_path/benchmark3/sst2-yelp/17-17 \
+#                         --output_dir $output_path/sst2-yelp/17-17 \
+#                         --cache_dir /scratch/yk2516/cache \
+#                         --sanity_logit_file_name logits17_17.txt
+# # ---------------------------------------------------------------------------------------------------------------- #
 
 
 # SINGULARITY

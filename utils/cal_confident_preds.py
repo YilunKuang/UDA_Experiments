@@ -97,3 +97,11 @@ if __name__ == "__main__":
 
 # imdb-sst2
 # python cal_confident_preds.py --dataset_pair imdb-sst2 --zeroshot_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output
+
+
+# sanity check that label matches
+for i in range(10):
+    print(pseudo_label[i])
+    # print(ind_high_confidence[i])
+    print(sorted_dict[ind_high_confidence[i]])
+    assert(sorted_dict[ind_high_confidence[i]]==pseudo_label[i])
