@@ -19,8 +19,26 @@ def main(args):
                 lst_largest_prob = list(map(lambda x: max(x), logits_prob))
                 ind_lst_largest_prob = np.argsort(lst_largest_prob)[::-1]
                 ind_lst_largest_prob = ind_lst_largest_prob[:int(len(ind_lst_largest_prob)*0.90)]
-                print(len(ind_lst_largest_prob))
-                print(ind_lst_largest_prob)
+
+                predictions = np.array(np.argmax(logits_prob, axis=-1))
+                pseudo_labels = predictions[ind_lst_largest_prob]
+
+                zip_dataset = zip(ind_lst_largest_prob,pseudo_labels)
+                zip_dict = dict(zip_dataset)
+                dict_items = zip_dict.items()
+                sorted_dict = dict(sorted(dict_items))
+                
+                key_lst = list(sorted_dict.keys())
+                value_lst = list(sorted_dict.values())
+
+                for k in range(10):
+                    print(f"{sorted_dict[key_lst[k]]}=={logits_prob[key_lst[k]]} & {lst_largest_prob[ind_lst_largest_prob[k]]}")
+                
+                with open(args.zeroshot_dir+'/'+args.output_file_name, 'wb') as f_ind:
+                    np.save(f_ind, np.array(key_lst))
+                with open(args.zeroshot_dir+'/'+args.output_label_name, 'wb') as f_label:
+                    np.save(f_label, np.array(value_lst))
+
 
                 with open(args.zeroshot_dir+'/'+args.output_file_name, 'wb') as f_ind:
                     np.save(f_ind, ind_lst_largest_prob)
@@ -41,16 +59,25 @@ def main(args):
                     lst_largest_prob = list(map(lambda x: max(x), logits_prob))
                     ind_lst_largest_prob = np.argsort(lst_largest_prob)[::-1]
                     ind_lst_largest_prob = ind_lst_largest_prob[:int(len(ind_lst_largest_prob)*0.90)]
-
+                    
                     predictions = np.array(np.argmax(logits_prob, axis=-1))
                     pseudo_labels = predictions[ind_lst_largest_prob]
 
-                    output_label_name = 'pseudolabels.npy'
-                    with open(args.zeroshot_dir+'/'+output_label_name, 'wb') as f_label:
-                        np.save(f_label, pseudo_labels)
+                    zip_dataset = zip(ind_lst_largest_prob,pseudo_labels)
+                    zip_dict = dict(zip_dataset)
+                    dict_items = zip_dict.items()
+                    sorted_dict = dict(sorted(dict_items))
+                    
+                    key_lst = list(sorted_dict.keys())
+                    value_lst = list(sorted_dict.values())
 
-                    # with open(args.zeroshot_dir+'/'+args.output_file_name, 'wb') as f_ind:
-                    #     np.save(f_ind, ind_lst_largest_prob)
+                    for k in range(10):
+                        print(f"{sorted_dict[key_lst[k]]}=={logits_prob[key_lst[k]]} & {lst_largest_prob[ind_lst_largest_prob[k]]}")
+                    
+                    with open(args.zeroshot_dir+'/'+args.output_file_name, 'wb') as f_ind:
+                        np.save(f_ind, np.array(key_lst))
+                    with open(args.zeroshot_dir+'/'+args.output_label_name, 'wb') as f_label:
+                        np.save(f_label, np.array(value_lst))
 
                 break
             break
@@ -61,8 +88,15 @@ if __name__ == "__main__":
     parser.add_argument("--zeroshot_dir", type=str, 
                         default='/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/imdb-yelp')
     parser.add_argument("--output_file_name",type=str,default='conf_indices.npy')
+    parser.add_argument("--output_label_name",type=str,default='pseudolabels.npy')
     args = parser.parse_args()
     main(args)
 
-def change_label(examples):
-    examples['label']=new_label
+# imdb-yelp
+# python cal_confident_preds.py
+
+# sst2-yelp
+# python cal_confident_preds.py --dataset_pair sst2-yelp --zeroshot_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/sst2-yelp
+
+# imdb-sst2
+# python cal_confident_preds.py --dataset_pair imdb-sst2 --zeroshot_dir /scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output
