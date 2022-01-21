@@ -38,10 +38,7 @@ def main(args):
                     np.save(f_ind, np.array(key_lst))
                 with open(args.zeroshot_dir+'/'+args.output_label_name, 'wb') as f_label:
                     np.save(f_label, np.array(value_lst))
-
-
-                with open(args.zeroshot_dir+'/'+args.output_file_name, 'wb') as f_ind:
-                    np.save(f_ind, ind_lst_largest_prob)
+            break
 
     else:
         for i in seed_lst:
