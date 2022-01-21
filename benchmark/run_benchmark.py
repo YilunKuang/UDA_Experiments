@@ -10,7 +10,9 @@ import math
 import torch
 import argparse
 import numpy as np
+import pandas as pd
 import torch.nn as nn
+from datasets import Dataset
 from datasets import load_metric
 from datasets import load_dataset
 from transformers import AutoTokenizer
@@ -20,11 +22,15 @@ from transformers import Trainer, set_seed
 
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
+    
+    # !!!!!!!!!!!!!!
+    column_dict_label = {'yelp_polarity':'label'}
+
     glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
 
     def tokenize_function(examples):
         return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
-    def compute_metrics(eval_pred):
+    def compute_metrics_eval(eval_pred):
         softmax_func = nn.Softmax(dim=1)
         logits, labels = eval_pred
 
@@ -37,6 +43,10 @@ def main(args):
         for i in range(len(logits_prob)):
             f_logits_prob.writelines(str(logits_prob[i])+'\n')
 
+        predictions = np.argmax(logits, axis=-1)
+        return metric.compute(predictions=predictions, references=labels)
+    def compute_metrics_train(eval_pred):
+        logits, labels = eval_pred
         predictions = np.argmax(logits, axis=-1)
         return metric.compute(predictions=predictions, references=labels)
 
@@ -55,7 +65,21 @@ def main(args):
         raw_datasets = load_dataset("glue", args.dataset_name, cache_dir=args.cache_dir)
     else: 
         raw_datasets = load_dataset(args.dataset_name, cache_dir=args.cache_dir)
+    
+    if args.self_training:
+        print(f"The new training dataset size is {raw_datasets['train'].num_rows}")
+        ind_high_confidence = np.load(args.indices_dir).tolist()
+        # !!!!!!!! 
+        pseudo_label = 1
 
+        raw_train_datasets = raw_datasets['train'].select(ind_high_confidence)
+        df = pd.DataFrame({column_dict[args.dataset_name]:raw_train_datasets[column_dict[args.dataset_name]],\
+                           column_dict_label[args.dataset_name]:pseudo_label})
+        raw_train_datasets = Dataset.from_pandas(df)
+        raw_datasets['train'] = raw_train_datasets
+
+        print(f"The new training dataset size after selection is {raw_datasets['train'].num_rows}")
+        
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
 
     if "validation" not in raw_datasets.keys():
@@ -64,39 +88,61 @@ def main(args):
     else:
         full_train_dataset = tokenized_datasets["train"]
         full_eval_dataset = tokenized_datasets["validation"]
-
-    f_logits = open(args.logits_dir+"/logits"+args.model_seed+"_"+str(args.random_seed)+".txt", "a")
-    f_logits_prob = open(args.logits_dir+"/logits_prob"+args.model_seed+"_"+str(args.random_seed)+".txt", "a")
-    f_labels = open(args.logits_dir+"/gold_label"+args.model_seed+"_"+str(args.random_seed)+".txt","a")
-
-    # Evaluation
-    training_args = TrainingArguments(output_dir=args.output_dir+"/"+args.dataset_name+"_test", overwrite_output_dir=True)
-    metric = load_metric("accuracy")
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=full_train_dataset,
-        eval_dataset=full_eval_dataset,
-        compute_metrics=compute_metrics,
-    )
-    metrics = trainer.evaluate()
     
-    f_logits.close()
-    f_logits_prob.close()
-    f_labels.close()
+    metric = load_metric("accuracy")
 
-    # save results
-    try:
-        perplexity = math.exp(metrics["eval_loss"])
-    except OverflowError:
-        perplexity = float("inf")
-    metrics["perplexity"] = perplexity
+    if args.do_train:
+        training_args = TrainingArguments(output_dir=args.output_dir+"/bert_"+args.dataset_name+"_finetune", overwrite_output_dir=True)
+        
+        trainer = Trainer(
+            model=model, 
+            args=training_args, 
+            train_dataset=full_train_dataset, 
+            eval_dataset=full_eval_dataset,
+            compute_metrics=compute_metrics_train,
+            tokenizer=tokenizer,
+        )
+        train_result = trainer.train()
+        trainer.save_model()
 
-    trainer.log_metrics("eval", metrics)
-    trainer.save_metrics("eval", metrics)
+    if args.do_eval:
+        f_logits = open(args.logits_dir+"/logits"+args.model_seed+"_"+str(args.random_seed)+".txt", "a")
+        f_logits_prob = open(args.logits_dir+"/logits_prob"+args.model_seed+"_"+str(args.random_seed)+".txt", "a")
+        f_labels = open(args.logits_dir+"/gold_label"+args.model_seed+"_"+str(args.random_seed)+".txt","a")
+
+        # Evaluation
+        training_args = TrainingArguments(output_dir=args.output_dir+"/"+args.dataset_name+"_test", overwrite_output_dir=True)
+        
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=full_train_dataset,
+            eval_dataset=full_eval_dataset,
+            compute_metrics=compute_metrics_eval,
+        )
+        metrics = trainer.evaluate()
+        
+        f_logits.close()
+        f_logits_prob.close()
+        f_labels.close()
+
+        # save results
+        try:
+            perplexity = math.exp(metrics["eval_loss"])
+        except OverflowError:
+            perplexity = float("inf")
+        metrics["perplexity"] = perplexity
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--do_train", action="store_true")
+    parser.add_argument("--do_eval", action="store_true")
+    parser.add_argument("--self_training",action="store_true")
+    parser.add_argument("--indices_dir",type=str,
+            default="/scratch/yk2516/UDA_Text_Generation/benchmark/target_zeroshot_output/imdb-yelp/conf_indices.npy")
     parser.add_argument("--model_and_tokenizer_path", type=str)
     parser.add_argument("--model_seed",type=str)
     parser.add_argument("--dataset_name", type=str, default='sst2')
