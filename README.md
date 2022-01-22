@@ -26,7 +26,7 @@ sbatch adapters/mlm_script_target.slurm
 sbatch adapters/adapter_script_target.slurm
 ```
 
-## Benchmark
+## Benchmark (not_maintained)
 
 ### 1. Fine-Tune the bert-base-uncased on Source Domain using the Classification Objective
 
