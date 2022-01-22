@@ -100,8 +100,8 @@ if __name__ == "__main__":
 
 
 # sanity check that label matches
-for i in range(10):
-    print(pseudo_label[i])
-    # print(ind_high_confidence[i])
-    print(sorted_dict[ind_high_confidence[i]])
-    assert(sorted_dict[ind_high_confidence[i]]==pseudo_label[i])
+# for i in range(10):
+#     print(pseudo_label[i])
+#     # print(ind_high_confidence[i])
+#     print(sorted_dict[ind_high_confidence[i]])
+#     assert(sorted_dict[ind_high_confidence[i]]==pseudo_label[i])

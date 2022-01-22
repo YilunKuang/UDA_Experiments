@@ -44,7 +44,6 @@ def sanity_check(args, ind_high_confidence, pseudo_label, raw_datasets):
             assert(sorted_dict[ind_high_confidence[i]]==pseudo_label[i])
         assert(raw_datasets['train']['label']==pseudo_label)
         
-
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
     column_dict_label = {'yelp_polarity':'label','imdb':'label','sst2':'label'}
@@ -86,18 +85,36 @@ def main(args):
 
     if args.dataset_name in glue_lst:
         raw_datasets = load_dataset("glue", args.dataset_name, cache_dir=args.cache_dir)
-    else: 
+    else:
         raw_datasets = load_dataset(args.dataset_name, cache_dir=args.cache_dir)
     
+    raw_keys = raw_datasets.keys()
+
     if args.self_training:
         print(f"The new training dataset size is {raw_datasets['train'].num_rows}")
         ind_high_confidence = np.load(args.indices_dir+"/conf_indices.npy").tolist()
         pseudo_label = np.load(args.indices_dir+"/pseudolabels.npy").tolist()
 
-        raw_train_datasets = raw_datasets['train'].select(ind_high_confidence)
-        # df = pd.DataFrame({column_dict[args.dataset_name]:raw_train_datasets[column_dict[args.dataset_name]],\
-        #                    column_dict_label[args.dataset_name]:pseudo_label})
-        # raw_train_datasets = Dataset.from_pandas(df)
+        if "validation" not in raw_keys:
+            raw_train_datasets = raw_datasets['test'].select(ind_high_confidence)
+            eval_num = raw_datasets['test'].num_rows
+        else:
+            raw_train_datasets = raw_datasets['validation'].select(ind_high_confidence)
+            eval_num = raw_datasets['validation'].num_rows
+        
+        raw_eval_datasets = raw_datasets['train'][0:eval_num]
+        df_eval = pd.DataFrame(raw_eval_datasets)
+        raw_eval_datasets = Dataset.from_pandas(df_eval)
+
+        df = pd.DataFrame({column_dict[args.dataset_name]:raw_train_datasets[column_dict[args.dataset_name]],\
+                           column_dict_label[args.dataset_name]:pseudo_label})
+        raw_train_datasets = Dataset.from_pandas(df)
+
+        # Now the original training set becomes the eval set, the eval set becomes the slices of the original training set.
+        if "validation" not in raw_keys:
+            raw_datasets['test'] = raw_eval_datasets
+        else:
+            raw_datasets['validation'] = raw_eval_datasets
         raw_datasets['train'] = raw_train_datasets
 
         # sanity check
@@ -107,10 +124,10 @@ def main(args):
         #     print(" *** sanity check failed! Check your data *** ")
 
         print(f"The new training dataset size after selection is {raw_datasets['train'].num_rows}")
-        
+
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
 
-    if "validation" not in raw_datasets.keys():
+    if "validation" not in raw_keys:
         full_train_dataset = tokenized_datasets["train"]
         full_eval_dataset = tokenized_datasets["test"]
     else:
