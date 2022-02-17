@@ -274,18 +274,29 @@ def main():
                     data_args.dataset_name, data_args.dataset_config_name, cache_dir=model_args.cache_dir
                 )
 
-
         if "validation" not in raw_datasets.keys():
             if data_args.dataset_name in glue_lst:
-                raw_datasets["validation"] = load_dataset("glue",
-                    data_args.dataset_name,
-                    split=f"train[:{data_args.validation_split_percentage}%]",
-                    cache_dir=model_args.cache_dir)
-                raw_datasets["train"] = load_dataset("glue",
-                    data_args.dataset_name,
-                    split=f"train[{data_args.validation_split_percentage}%:]",
-                    cache_dir=model_args.cache_dir,
-                )
+                if data_args.dataset_name == 'mnli':
+                    raw_datasets["train"] = raw_datasets["validation_mismatched"]
+                    raw_datasets["validation"] = raw_datasets["test_mismatched"]
+                    # print(" ---------------------------------------- ")
+                    # print('Yilun modification')
+                    # print(raw_datasets["train"])
+                    # print(raw_datasets["validation"])
+                    # print(' ---------------------------------------- ')
+                elif data_args.dataset_name == 'rte':
+                    raw_datasets["train"] = raw_datasets["validation"]
+                    raw_datasets["validation"] = raw_datasets["validation"]
+                else:
+                    raw_datasets["validation"] = load_dataset("glue",
+                        data_args.dataset_name,
+                        split=f"train[:{data_args.validation_split_percentage}%]",
+                        cache_dir=model_args.cache_dir)
+                    raw_datasets["train"] = load_dataset("glue",
+                        data_args.dataset_name,
+                        split=f"train[{data_args.validation_split_percentage}%:]",
+                        cache_dir=model_args.cache_dir,
+                    )
             else:
                 if data_args.dataset_name in no_config_lst:
                     raw_datasets["validation"] = load_dataset(
@@ -298,6 +309,9 @@ def main():
                         split=f"train[{data_args.validation_split_percentage}%:]",
                         cache_dir=model_args.cache_dir,
                     )
+                elif data_args.dataset_name == 'snli':
+                    raw_datasets["train"] = raw_datasets["validation"]
+                    raw_datasets["validation"] = raw_datasets["validation"]
                 else:
                     raw_datasets["validation"] = load_dataset(
                         data_args.dataset_name,

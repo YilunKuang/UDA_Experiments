@@ -11,9 +11,24 @@ from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
     glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
+    
+    nli_dict = {'mnli':['premise','hypothesis'],
+                'snli':['premise','hypothesis'],
+                'rte':['sentence1','sentence2'],
+                'qqp':['question1','question2']}
+    
+    triple_label_lst = ['mnli','snli']
+    if args.dataset_name in triple_label_lst:
+        num_labels = 3
+    else:
+        num_labels = 2
 
     def tokenize_function(examples):
-        return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
+        if args.dataset_name in nli_dict:
+            return tokenizer(examples[nli_dict[args.dataset_name][0]], examples[nli_dict[args.dataset_name][1]], padding="max_length", truncation=True)
+        else:
+            return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
+
     def compute_metrics(eval_pred):
         softmax_func = nn.Softmax(dim=1)
         logits, labels = eval_pred
@@ -51,11 +66,23 @@ def main(args):
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
 
     if "validation" not in raw_datasets.keys():
-        full_train_dataset = tokenized_datasets["train"]
-        full_eval_dataset = tokenized_datasets["test"]
+        if args.dataset_name == 'mnli':
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation_mismatched"]
+        else:
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["test"]
     else:
-        full_train_dataset = tokenized_datasets["train"]
-        full_eval_dataset = tokenized_datasets["validation"]
+        if args.dataset_name == 'snli':
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation"]   
+             
+            full_train_dataset = full_train_dataset.filter(lambda example: example['label']!=-1)
+            full_eval_dataset = full_eval_dataset.filter(lambda example: example['label']!=-1)
+            # snli_filtered = snli['validation'].filter(lambda example: example['label']!=-1)
+        else:
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation"]    
 
     f_logits = open(args.output_dir+"/logits.txt", "a")
     f_logits_prob = open(args.output_dir+"/logits_prob.txt", "a")

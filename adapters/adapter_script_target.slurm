@@ -2,29 +2,151 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=4:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=128G
 #SBATCH --job-name=adapter_bert_target
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_file/slurm_train_%j.out
 
-singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-7.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
+singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-1.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
 echo "Running - Run BERT Adapter Inference on Target datasets"
 source /ext3/env.sh
 conda activate
 
-# ****** IMDB | Yelp ****** #
+adapter_path=/scratch/yk2516/UDA_Text_Generation/source_adapter_output
+mlm_model_path=/scratch/yk2516/UDA_Text_Generation/target_pretrain_output
+adapter_output_path=/scratch/yk2516/UDA_Text_Generation/target_adapter_output
 
-# 83 Start
-# 83-83 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-17 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-17-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-42  --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-42-17
-python run_adapter_inference.py --adapters_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/83-83/final_adapter --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/target_pretrain_output/checkpoint-83-random-seed-83 --dataset_name yelp_polarity --output_dir /scratch/yk2516/UDA_Text_Generation/target_adapter_output/imdb-yelp/83-83-83-17
+# ****** MNLI | SNLI ****** # -> Done! (5 minutes per script) -> 4 hrs
+## -------------------------------------------------------------------------------------------------------------- ##
+# 17 Start
+# 17-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+
+# python run_adapter_inference.py --adapters_dir $adapter_path/mnli/17-17/final_adapter \
+#                                 --model_and_tokenizer_path $mlm_model_path/mnli-snli/checkpoint-17-random-seed-17 \
+#                                 --dataset_name snli \
+#                                 --output_dir $adapter_output_path/mnli-snli/17-17-17-17
+
+for VARIABLE_I in 17 42 83
+do
+    for VARIABLE_J in 17 42 83
+    do
+        for VARIABLE_K in 17 42 83
+        do
+            python run_adapter_inference.py --adapters_dir $adapter_path/mnli/$VARIABLE_I-$VARIABLE_J/final_adapter \
+                                            --model_and_tokenizer_path $mlm_model_path/mnli-snli/checkpoint-$VARIABLE_I-random-seed-$VARIABLE_K \
+                                            --dataset_name snli \
+                                            --output_dir $adapter_output_path/mnli-snli/$VARIABLE_I-$VARIABLE_J-$VARIABLE_K-17
+        done
+    done
+done
+
+## -------------------------------------------------------------------------------------------------------------- ##
+
+# ****** MNLI | RTE ****** # -> Done! (1 minute per script)
+## -------------------------------------------------------------------------------------------------------------- ##
+# 17 Start
+# 17-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+
+# python run_adapter_inference.py --adapters_dir $adapter_path/mnli/17-17/final_adapter \
+#                                 --model_and_tokenizer_path $mlm_model_path/mnli-rte/checkpoint-17-random-seed-17 \
+#                                 --dataset_name rte \
+#                                 --output_dir $adapter_output_path/mnli-rte/17-17-17-17
+
+for VARIABLE_I in 17 42 83
+do
+    for VARIABLE_J in 17 42 83
+    do
+        for VARIABLE_K in 17 42 83
+        do
+            python run_adapter_inference.py --adapters_dir $adapter_path/mnli/$VARIABLE_I-$VARIABLE_J/final_adapter \
+                                            --model_and_tokenizer_path $mlm_model_path/mnli-rte/checkpoint-$VARIABLE_I-random-seed-$VARIABLE_K \
+                                            --dataset_name rte \
+                                            --output_dir $adapter_output_path/mnli-rte/$VARIABLE_I-$VARIABLE_J-$VARIABLE_K-17
+        done
+    done
+done
+
+## -------------------------------------------------------------------------------------------------------------- ##
+
 
 '
+
+
 # SINGULARITY
 # singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash
 # singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-0.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash
+
+# # ****** MNLI | SNLI ****** # -> Done! (5 minutes per script) -> 4 hrs
+# ## -------------------------------------------------------------------------------------------------------------- ##
+# # 17 Start
+# # 17-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+
+# # python run_adapter_inference.py --adapters_dir $adapter_path/mnli/17-17/final_adapter \
+# #                                 --model_and_tokenizer_path $mlm_model_path/mnli-snli/checkpoint-17-random-seed-17 \
+# #                                 --dataset_name snli \
+# #                                 --output_dir $adapter_output_path/mnli-snli/17-17-17-17
+
+# for VARIABLE_I in 17 42 83
+# do
+#     for VARIABLE_J in 17 42 83
+#     do
+#         for VARIABLE_K in 17 42 83
+#         do
+#             python run_adapter_inference.py --adapters_dir $adapter_path/mnli/$VARIABLE_I-$VARIABLE_J/final_adapter \
+#                                             --model_and_tokenizer_path $mlm_model_path/mnli-snli/checkpoint-$VARIABLE_I-random-seed-$VARIABLE_K \
+#                                             --dataset_name snli \
+#                                             --output_dir $adapter_output_path/mnli-snli/$VARIABLE_I-$VARIABLE_J-$VARIABLE_K-17
+#         done
+#     done
+# done
+
+# ## -------------------------------------------------------------------------------------------------------------- ##
+
+# # ****** MNLI | RTE ****** # -> Done! (1 minute per script)
+# ## -------------------------------------------------------------------------------------------------------------- ##
+# # 17 Start
+# # 17-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+
+# # python run_adapter_inference.py --adapters_dir $adapter_path/mnli/17-17/final_adapter \
+# #                                 --model_and_tokenizer_path $mlm_model_path/mnli-rte/checkpoint-17-random-seed-17 \
+# #                                 --dataset_name rte \
+# #                                 --output_dir $adapter_output_path/mnli-rte/17-17-17-17
+
+# for VARIABLE_I in 17 42 83
+# do
+#     for VARIABLE_J in 17 42 83
+#     do
+#         for VARIABLE_K in 17 42 83
+#         do
+#             python run_adapter_inference.py --adapters_dir $adapter_path/mnli/$VARIABLE_I-$VARIABLE_J/final_adapter \
+#                                             --model_and_tokenizer_path $mlm_model_path/mnli-rte/checkpoint-$VARIABLE_I-random-seed-$VARIABLE_K \
+#                                             --dataset_name rte \
+#                                             --output_dir $adapter_output_path/mnli-rte/$VARIABLE_I-$VARIABLE_J-$VARIABLE_K-17
+#         done
+#     done
+# done
+
+# ## -------------------------------------------------------------------------------------------------------------- ##
+
+# # ****** RTE | MNLI ****** # -> Error
+# ## -------------------------------------------------------------------------------------------------------------- ##
+# # 17 Start
+# # 17-17 (the 4th random seed is kept at 17 as it doesnt change the eval_result during the adapter inference phase)
+
+# adapter_path=/scratch/yk2516/UDA_Text_Generation/source_adapter_output
+# mlm_model_path=/scratch/yk2516/UDA_Text_Generation/target_pretrain_output
+# adapter_output_path=/scratch/yk2516/UDA_Text_Generation/target_adapter_output
+
+# python run_adapter_inference.py --adapters_dir $adapter_path/rte/17-17/final_adapter \
+#                                 --model_and_tokenizer_path $mlm_model_path/rte-mnli/checkpoint-17-random-seed-17 \
+#                                 --dataset_name mnli \
+#                                 --output_dir $adapter_output_path/rte-mnli/17-17-17-17
+# ## -------------------------------------------------------------------------------------------------------------- ##
+
+
+
+
 
 # ****** IMDB | Yelp ****** #
 # ## -------------------------------------------------------------------------------------------------------------- ##

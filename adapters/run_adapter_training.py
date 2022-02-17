@@ -9,9 +9,23 @@ from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
     glue_lst = ["ax", "cola", "mnli", "mnli_matched", "mnli_mismatched", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
-
+    
+    nli_dict = {'mnli':['premise','hypothesis'],
+                'snli':['premise','hypothesis'],
+                'rte':['sentence1','sentence2'],
+                'qqp':['question1','question2']}
+    
+    triple_label_lst = ['mnli','snli']
+    if args.dataset_name in triple_label_lst:
+        num_labels = 3
+    else:
+        num_labels = 2
+    
     def tokenize_function(examples):
-        return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
+        if args.dataset_name in nli_dict:
+            return tokenizer(examples[nli_dict[args.dataset_name][0]], examples[nli_dict[args.dataset_name][1]], padding="max_length", truncation=True)
+        else:
+            return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
         #return tokenizer(examples["text"], padding="max_length", truncation=True)
     def compute_metrics(eval_pred):
         logits, labels = eval_pred
@@ -33,11 +47,27 @@ def main(args):
         dataset = load_dataset(args.dataset_name, cache_dir=args.cache_dir)
 
     tokenized_datasets = dataset.map(tokenize_function, batched=True)
-    full_train_dataset = tokenized_datasets["train"]
-    full_eval_dataset = tokenized_datasets["test"]
+    
+    if "validation" not in dataset.keys():
+        if args.dataset_name == 'mnli':
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation_mismatched"]
+        else: 
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["test"]
+    else:
+        if args.dataset_name == 'snli':
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation"]
+
+            full_train_dataset = full_train_dataset.filter(lambda example: example['label']!=-1)
+            full_eval_dataset = full_eval_dataset.filter(lambda example: example['label']!=-1)
+        else:
+            full_train_dataset = tokenized_datasets["train"]
+            full_eval_dataset = tokenized_datasets["validation"]    
 
     model.add_adapter(args.dataset_name+"_source"+str(args.random_seed))
-    model.add_classification_head(args.dataset_name+"_source"+str(args.random_seed), num_labels=2)
+    model.add_classification_head(args.dataset_name+"_source"+str(args.random_seed), num_labels=num_labels)
     model.train_adapter(args.dataset_name+"_source"+str(args.random_seed))
     training_args = TrainingArguments(output_dir=args.output_dir+args.dataset_name+"_source"+str(args.random_seed), overwrite_output_dir=True)
     trainer = AdapterTrainer(

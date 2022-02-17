@@ -29,7 +29,7 @@ def main(args):
         
     set_seed(args.random_seed)
     
-    model = AutoModelForSequenceClassification.from_pretrained(args.model_and_tokenizer_path, num_labels=2, cache_dir=args.cache_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
     try:
         tokenizer = AutoTokenizer.from_pretrained(args.model_and_tokenizer_path, cache_dir=args.cache_dir)
     except:
