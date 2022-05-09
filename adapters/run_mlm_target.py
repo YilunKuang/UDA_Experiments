@@ -47,6 +47,7 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
+from transformers import EarlyStoppingCallback
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -280,7 +281,7 @@ def main():
                     raw_datasets["train"] = raw_datasets["validation_mismatched"]
                     raw_datasets["validation"] = raw_datasets["test_mismatched"]
                     # print(" ---------------------------------------- ")
-                    # print('Yilun modification')
+                    print('Yilun modification')
                     # print(raw_datasets["train"])
                     # print(raw_datasets["validation"])
                     # print(' ---------------------------------------- ')
@@ -431,7 +432,9 @@ def main():
             )
         max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
 
+
     if data_args.line_by_line:
+        print("line by line")
         # When using line_by_line, we just tokenize each nonempty line.
         padding = "max_length" if data_args.pad_to_max_length else False
 
@@ -460,6 +463,8 @@ def main():
                 desc="Running tokenizer on dataset line_by_line",
             )
     else:
+        print("not line by line")
+
         # Otherwise, we tokenize every text, then concatenate them together before splitting them in smaller parts.
         # We use `return_special_tokens_mask=True` because DataCollatorForLanguageModeling (see below) is more
         # efficient when it receives the `special_tokens_mask`.
@@ -482,16 +487,38 @@ def main():
             # Concatenate all texts.
             concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
             total_length = len(concatenated_examples[list(examples.keys())[0]])
+            print(f"total_length is {total_length}")
+            print(f"max_seq_length is {max_seq_length}")
             # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
             # customize this part to your needs.
             if total_length >= max_seq_length:
                 total_length = (total_length // max_seq_length) * max_seq_length
+            print(f"total_length is {total_length}")
             # Split by chunks of max_len.
             result = {
                 k: [t[i : i + max_seq_length] for i in range(0, total_length, max_seq_length)]
                 for k, t in concatenated_examples.items()
             }
             return result
+            # return concatenated_examples
+        # def group_texts_mnli(examples):
+        #     # Concatenate all texts.
+        #     concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
+        #     total_length = len(concatenated_examples[list(examples.keys())[0]])
+        #     print(f"total_length is {total_length}")
+        #     print(f"max_seq_length is {max_seq_length}")
+        #     # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
+        #     # customize this part to your needs.
+        #     if total_length >= max_seq_length:
+        #         total_length = (total_length // max_seq_length) * max_seq_length
+        #     print(f"total_length is {total_length}")
+        #     # Split by chunks of max_len.
+        #     result = {
+        #         k: [t[i : i + max_seq_length] for i in range(0, total_length, max_seq_length)]
+        #         for k, t in concatenated_examples.items()
+        #     }
+        #     # return result
+        #     return concatenated_examples
 
         # Note that with `batched=True`, this map processes 1,000 texts together, so group_texts throws away a
         # remainder for each of those groups of 1,000 texts. You can adjust that batch_size here but a higher value
@@ -499,8 +526,21 @@ def main():
         #
         # To speed up this part, we use multiprocessing. See the documentation of the map method for more information:
         # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
+        print("Train dataset!!!")
+        print(tokenized_datasets["train"])
 
         with training_args.main_process_first(desc="grouping texts together"):
+            # if data_args.dataset_name == 'mnli':
+            #     tokenized_datasets = tokenized_datasets.map(
+            #         group_texts_mnli,
+            #         batched=True,
+            #         num_proc=data_args.preprocessing_num_workers,
+            #         load_from_cache_file=not data_args.overwrite_cache,
+            #         desc=f"Grouping texts in chunks of {max_seq_length}",
+            #     )
+            #     print("Train dataset!!!")
+            #     print(tokenized_datasets["train"])
+            # else:
             tokenized_datasets = tokenized_datasets.map(
                 group_texts,
                 batched=True,
@@ -515,6 +555,7 @@ def main():
         train_dataset = tokenized_datasets["train"]
         if data_args.max_train_samples is not None:
             train_dataset = train_dataset.select(range(data_args.max_train_samples))
+            # print(f"data_args.max_train_samples is {data_args.max_train_samples}.")
 
     if training_args.do_eval:
         if "validation" not in tokenized_datasets:
@@ -522,6 +563,7 @@ def main():
         eval_dataset = tokenized_datasets["validation"]
         if data_args.max_eval_samples is not None:
             eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
+            
 
     # Data collator
     # This one will take care of randomly masking the tokens.
@@ -540,8 +582,10 @@ def main():
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         data_collator=data_collator,
+        callbacks = [EarlyStoppingCallback(early_stopping_patience=3)]
     )
 
+    
     # Training
     if training_args.do_train:
         checkpoint = None

@@ -2,51 +2,97 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=3:00:00
-#SBATCH --mem=128G
+#SBATCH --time=4:00:00
+#SBATCH --mem=64G
 #SBATCH --job-name=mlm_bert
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_file/slurm_train_%j.out
 
-singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-2.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
+singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-1.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
 echo "Running - Run BERT MLM Training on Source datasets"
 source /ext3/env.sh
 conda activate
 
-# *** MLM on QQP *** # 
-# -------------------------------------------------------------------------------------------- #
-# ** seed 17 **
+# # *** MLM on SNLI *** # 
+# # -------------------------------------------------------------------------------------------- #
+# # ** seed 17 **
 python run_mlm_source.py --model_name_or_path bert-base-uncased \
-                         --dataset_name qqp \
+                         --dataset_name snli \
                          --do_train \
                          --do_eval \
                          --seed 17 \
-                         --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/qqp/checkpoint-random-seed-17 \
-                         --cache_dir /scratch/yk2516/cache
+                         --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17-earlystop \
+                         --cache_dir /scratch/yk2516/cache \
+                         --overwrite_output_dir \
+                         --evaluation_strategy steps \
+                         --eval_steps 500 \
+                         --num_train_epochs 3 \
+                         --greater_is_better False \
+                         --metric_for_best_model eval_loss \
+                         --load_best_model_at_end True
 
-# ** seed 42 **
+# # *** MLM on MNLI *** # 
+# # -------------------------------------------------------------------------------------------- #
+# # ** seed 17 **
 python run_mlm_source.py --model_name_or_path bert-base-uncased \
-                         --dataset_name qqp \
+                         --dataset_name mnli \
                          --do_train \
                          --do_eval \
-                         --seed 42 \
-                         --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/qqp/checkpoint-random-seed-42 \
-                         --cache_dir /scratch/yk2516/cache
+                         --seed 17 \
+                         --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/mnli/checkpoint-random-seed-17-earlystop \
+                         --cache_dir /scratch/yk2516/cache \
+                         --overwrite_output_dir \
+                         --evaluation_strategy steps \
+                         --eval_steps 500 \
+                         --num_train_epochs 3 \
+                         --greater_is_better False \
+                         --metric_for_best_model eval_loss \
+                         --load_best_model_at_end True
 
-# ** seed 83 **
-python run_mlm_source.py --model_name_or_path bert-base-uncased \
-                         --dataset_name qqp \
-                         --do_train \
-                         --do_eval \
-                         --seed 83 \
-                         --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/qqp/checkpoint-random-seed-83 \
-                         --cache_dir /scratch/yk2516/cache
-# -------------------------------------------------------------------------------------------- #
+
 '
 
 # SINGULARITY
 # singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash
 # singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-0.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash
+
+# # # *** MLM on SNLI *** # 
+# # # -------------------------------------------------------------------------------------------- #
+# # # ** seed 17 **
+# python run_mlm_source.py --model_name_or_path bert-base-uncased \
+#                          --dataset_name snli \
+#                          --do_train \
+#                          --do_eval \
+#                          --seed 17 \
+#                          --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17-earlystop \
+#                          --cache_dir /scratch/yk2516/cache \
+#                          --overwrite_output_dir \
+#                          --evaluation_strategy steps \
+#                          --eval_steps 500 \
+#                          --save_total_limit 5 \
+#                          --num_train_epochs 3 \
+#                          --greater_is_better False \
+#                          --metric_for_best_model eval_loss \
+#                          --load_best_model_at_end True
+
+# # # *** MLM on MNLI *** # 
+# # # -------------------------------------------------------------------------------------------- #
+# # # ** seed 17 **
+# python run_mlm_source.py --model_name_or_path bert-base-uncased \
+#                          --dataset_name mnli \
+#                          --do_train \
+#                          --do_eval \
+#                          --seed 17 \
+#                          --output_dir /scratch/yk2516/UDA_Text_Generation/pretrain_output/mnli/checkpoint-random-seed-17-earlystop \
+#                          --cache_dir /scratch/yk2516/cache \
+#                          --overwrite_output_dir \
+#                          --evaluation_strategy steps \
+#                          --eval_steps 500 \
+#                          --save_total_limit 5 \
+#                          --num_train_epochs 3 \
+#                          --greater_is_better False \
+#                          --metric_for_best_model eval_loss \
+#                          --load_best_model_at_end True
 
 # # *** MLM on QQP *** # 
 # # -------------------------------------------------------------------------------------------- #

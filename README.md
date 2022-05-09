@@ -34,6 +34,10 @@ sbatch adapters/adapter_script_target.slurm
 sbatch benchmark/finetune_script.slurm
 ```
 
+### Benchmark 1 Zero-Shot on the Target Domain Datasets
+
+
+
 ### 2. Zero-shot evaluate the finetuned BERT on Target Domain
 ```python
 sbatch benchmark/zeroshot_script_target.slurm

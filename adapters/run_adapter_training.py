@@ -5,6 +5,7 @@ from datasets import load_metric
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelWithHeads, set_seed
 from transformers import TrainingArguments, AdapterTrainer, EvalPrediction
+from transformers import EarlyStoppingCallback
 
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
@@ -28,6 +29,7 @@ def main(args):
             return tokenizer(examples[column_dict[args.dataset_name]], padding="max_length", truncation=True)
         #return tokenizer(examples["text"], padding="max_length", truncation=True)
     def compute_metrics(eval_pred):
+        metric = load_metric("accuracy")
         logits, labels = eval_pred
         predictions = np.argmax(logits, axis=-1)
         return metric.compute(predictions=predictions, references=labels)
@@ -69,15 +71,23 @@ def main(args):
     model.add_adapter(args.dataset_name+"_source"+str(args.random_seed))
     model.add_classification_head(args.dataset_name+"_source"+str(args.random_seed), num_labels=num_labels)
     model.train_adapter(args.dataset_name+"_source"+str(args.random_seed))
-    training_args = TrainingArguments(output_dir=args.output_dir+args.dataset_name+"_source"+str(args.random_seed), overwrite_output_dir=True)
+    training_args = TrainingArguments(output_dir=args.output_dir+args.dataset_name+"_source"+str(args.random_seed), 
+                                      overwrite_output_dir=True, 
+                                      evaluation_strategy='steps', 
+                                      eval_steps=500, 
+                                      save_total_limit=5, 
+                                      num_train_epochs=3, 
+                                      greater_is_better=True, 
+                                      metric_for_best_model='eval_accuracy', 
+                                      load_best_model_at_end=True)
     trainer = AdapterTrainer(
-        model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics
+        model=model, args=training_args, train_dataset=full_train_dataset, eval_dataset=full_eval_dataset,compute_metrics=compute_metrics,callbacks = [EarlyStoppingCallback(early_stopping_patience=3)]
     )
 
     train_result = trainer.train()
     trainer.save_model()
 
-    metric = load_metric("accuracy")
+    
     metrics = trainer.evaluate()
 
     try:

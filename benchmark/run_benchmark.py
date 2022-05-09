@@ -31,7 +31,8 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from transformers import TrainingArguments
 from transformers import Trainer, set_seed
-        
+from transformers import EarlyStoppingCallback
+
 def main(args):
     column_dict = {'imdb':'text','sst2':'sentence','yelp_polarity':'text'}
     column_dict_label = {'yelp_polarity':'label','imdb':'label','sst2':'label'}
@@ -147,17 +148,33 @@ def main(args):
 
     metric = load_metric("accuracy")
 
+
     if args.do_train:
-        training_args = TrainingArguments(output_dir=args.output_dir+"/bert_"+args.dataset_name+"_finetune", overwrite_output_dir=True)
-        
+        # training_args = TrainingArguments(output_dir=args.output_dir+"/bert_"+args.dataset_name+"_finetune", \
+        #                                   overwrite_output_dir=True,
+        #                                   load_best_model_at_end=True
+        #                                   metric_for_best_model="eval_loss",
+        #                                   greater_is_better=False,)
+        training_args = TrainingArguments(output_dir=args.output_dir+"/bert_"+args.dataset_name+"_finetune", \
+                                        overwrite_output_dir=True,
+                                        evaluation_strategy ='steps',
+                                        eval_steps = 500, 
+                                        save_total_limit = 5,
+                                        num_train_epochs=3,
+                                        greater_is_better=True,
+                                        metric_for_best_model = 'accuracy',
+                                        load_best_model_at_end=True)
+
         trainer = Trainer(
             model=model, 
             args=training_args, 
             train_dataset=full_train_dataset, 
             eval_dataset=full_eval_dataset,
             compute_metrics=compute_metrics_train,
-            tokenizer=tokenizer,
+            tokenizer=tokenizer
+            # callbacks = [EarlyStoppingCallback(early_stopping_patience=3)]
         )
+
         train_result = trainer.train()
         trainer.save_model()
         try:

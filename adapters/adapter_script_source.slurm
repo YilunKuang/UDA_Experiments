@@ -2,13 +2,13 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=20:00:00
-#SBATCH --mem=128G
+#SBATCH --time=23:00:00
+#SBATCH --mem=64G
 #SBATCH --job-name=adapter_bert_source
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_file/slurm_train_%j.out
 
-singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-0.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
+singularity exec --nv --overlay /scratch/yk2516/singularity/overlay-25GB-500K-2.ext3:rw /scratch/work/public/singularity/cuda11.3.0-cudnn8-devel-ubuntu20.04.sif /bin/bash -c '
 echo "Running - Run BERT Adapter Training on Source datasets"
 source /ext3/env.sh
 conda activate
@@ -16,15 +16,34 @@ conda activate
 # SNLI Training (Really long! -> 14:48:10)
 # ------------------------------------------------------------------------------ #
 # 17-x
-python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17 \
+python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17-earlystop \
                                --random_seed 17 \
                                --dataset_name snli \
-                               --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/snli/17-17/
-
+                               --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/snli/17-17-earlystop/
 # ------------------------------------------------------------------------------ #
 
 
+
+
 '
+
+# # SNLI Training (Really long! -> 14:48:10)
+# # ------------------------------------------------------------------------------ #
+# # 17-x
+# python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17-earlystop \
+#                                --random_seed 17 \
+#                                --dataset_name snli \
+#                                --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/snli/17-17-earlystop/
+# # ------------------------------------------------------------------------------ #
+
+# # MNLI Training (10 hrs each one)
+# # ------------------------------------------------------------------------------ #
+# # 17-x
+# python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/mnli/checkpoint-random-seed-17-earlystop \
+#                                --random_seed 17 \
+#                                --dataset_name mnli \
+#                                --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/mnli/17-17-earlystop/
+# # ------------------------------------------------------------------------------ #
 
 # SINGULARITY
 # singularity exec --nv --overlay $SCRATCH/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda10.1-cudnn7-devel-ubuntu18.04-20201207.sif /bin/bash
@@ -40,10 +59,19 @@ python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Te
 
 # # ------------------------------------------------------------------------------ #
 
+# # MNLI Training (10 hrs each one)
+# # ------------------------------------------------------------------------------ #
+# # 17-x
+# python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/mnli/checkpoint-random-seed-17/checkpoint-7000 \
+#                                --random_seed 17 \
+#                                --dataset_name mnli \
+#                                --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/mnli/17-17/
+# # ------------------------------------------------------------------------------ #
+
 # # SNLI Training (Really long! -> 14:48:10)
 # # ------------------------------------------------------------------------------ #
 # # 17-x
-# python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17 \
+# python run_adapter_training.py --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/pretrain_output/snli/checkpoint-random-seed-17/checkpoint-6000 \
 #                                --random_seed 17 \
 #                                --dataset_name snli \
 #                                --output_dir /scratch/yk2516/UDA_Text_Generation/source_adapter_output/snli/17-17/

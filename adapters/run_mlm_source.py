@@ -47,6 +47,7 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
+from transformers import EarlyStoppingCallback
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -248,6 +249,15 @@ def main():
     print(f"training_args.seed={training_args.seed}.")
     set_seed(training_args.seed)
     
+    # training_args.overwrite_output_dir = True
+    # training_args.evaluation_strategy ='steps'
+    # training_args.eval_steps = 500, 
+    # training_args.save_total_limit = 5,
+    # training_args.num_train_epochs=3,
+    # training_args.greater_is_better=True,
+    # training_args.metric_for_best_model = 'accuracy',
+    # training_args.load_best_model_at_end=True
+
     # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
     # (the dataset will be downloaded automatically from the datasets Hub
@@ -500,6 +510,15 @@ def main():
         pad_to_multiple_of=8 if pad_to_multiple_of_8 else None,
     )
 
+    # training_args.overwrite_output_dir = True
+    # training_args.evaluation_strategy ='steps'
+    # training_args.eval_steps = 500, 
+    # training_args.save_total_limit = 5,
+    # # training_args.num_train_epochs=3,
+    # training_args.greater_is_better=True,
+    # training_args.metric_for_best_model = 'accuracy',
+    # training_args.load_best_model_at_end=True
+
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
@@ -508,6 +527,7 @@ def main():
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         data_collator=data_collator,
+        callbacks = [EarlyStoppingCallback(early_stopping_patience=3)]
     )
 
     # Training

@@ -76,7 +76,7 @@ def main(args):
         if args.dataset_name == 'snli':
             full_train_dataset = tokenized_datasets["train"]
             full_eval_dataset = tokenized_datasets["validation"]   
-             
+            
             full_train_dataset = full_train_dataset.filter(lambda example: example['label']!=-1)
             full_eval_dataset = full_eval_dataset.filter(lambda example: example['label']!=-1)
             # snli_filtered = snli['validation'].filter(lambda example: example['label']!=-1)

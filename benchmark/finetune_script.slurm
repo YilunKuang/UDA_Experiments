@@ -2,8 +2,8 @@
 ###SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=2:00:00
-#SBATCH --mem=128G
+#SBATCH --time=23:00:00
+#SBATCH --mem=64G
 #SBATCH --job-name=finetune_bert
 #SBATCH --mail-user=yk2516@nyu.edu
 #SBATCH --output=/scratch/yk2516/UDA_Text_Generation/slurm_file/slurm_train_%j.out
@@ -13,20 +13,41 @@ echo "Running - Run BERT Finetuning on Source / Target Datasets"
 source /ext3/env.sh
 conda activate
 
-# Finetune on RTE (Works!) - 5 minutes per scripts
+# Finetune on MNLI (Works!) - 10 Hrs per scripts
 # ---------------------------------------------------------------------------------------------------------------- #
 python run_benchmark.py --do_train \
                         --do_eval \
-                        --model_and_tokenizer_path bert-base-uncased \
-                        --dataset_name rte \
+                        --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/mnli/17/bert_mnli_finetune \
+                        --dataset_name mnli \
                         --random_seed 17 \
-                        --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/rte/17  \
+                        --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/mnli/17  \
                         --cache_dir /scratch/yk2516/cache
 # ---------------------------------------------------------------------------------------------------------------- #
 
 
-
 '
+# # Finetune on MNLI (Works!) - 10 Hrs per scripts
+# # ---------------------------------------------------------------------------------------------------------------- #
+# python run_benchmark.py --do_train \
+#                         --do_eval \
+#                         --model_and_tokenizer_path bert-base-uncased \
+#                         --dataset_name mnli \
+#                         --random_seed 17 \
+#                         --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/mnli/17  \
+#                         --cache_dir /scratch/yk2516/cache
+# # ---------------------------------------------------------------------------------------------------------------- #
+
+# # Finetune on SNLI (Works!) - 15 Hrs per scripts
+# # ---------------------------------------------------------------------------------------------------------------- #
+# python run_benchmark.py --do_train \
+#                         --do_eval \
+#                         --model_and_tokenizer_path /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/snli/17/bert_snli_finetune \
+#                         --dataset_name snli \
+#                         --random_seed 17 \
+#                         --output_dir /scratch/yk2516/UDA_Text_Generation/benchmark/source_finetune_output/snli/17  \
+#                         --cache_dir /scratch/yk2516/cache
+# # ---------------------------------------------------------------------------------------------------------------- #
+
 
 # # Finetune on RTE (Works!) - 5 minutes per scripts
 # # ---------------------------------------------------------------------------------------------------------------- #
